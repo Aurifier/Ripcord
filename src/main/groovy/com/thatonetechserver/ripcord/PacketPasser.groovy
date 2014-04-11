@@ -4,11 +4,12 @@ package com.thatonetechserver.ripcord
  * Created by Aurifier on 4/5/14.
  */
 class PacketPasser {
-    public PacketPasser(Socket serverSocket) {
-
+    private Socket clientSock
+    public PacketPasser(Socket listenSocket) {
+        clientSock = listenSocket
     }
 
-    public void addClient(Socket clientSock, String username) {
-
+    public start(Socket serverSock) {
+        serverSock.getOutputStream().newWriter().write "Hello World!"
     }
 }

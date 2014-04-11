@@ -1,37 +1,55 @@
 package com.thatonetechserver.ripcord
 
-import static org.mockito.Mockito.mock
+import groovy.mock.interceptor.MockFor
+import org.mockito.Mock
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+import spock.lang.Specification
+import static org.mockito.Mockito.*
 
 /**
  * Created by Aurifier on 4/3/14.
  * A test for just passing packets through.
  */
 
-class PacketPassthroughTest extends GroovyTestCase {
-    void testClientPacketIsForwardedToServer() {
-        def mockMinecraftServerSock = mock(Socket.class)
-        /*I'm too tired to finish this, but basically I want to mock out the Streams and their Readers/Writers
-        (as appropriate), then check that the data from the listen socket's InputStream shows up in the server socket's
-        OutputStream.*/
+class PacketPassthroughSpec extends Specification {
+    def "client packet is forwarded to server"() {
+    given: "a socket to a client and a socket to a minecraft server"
+        def sentdata = ""
 
-        /*As an aside, it looks like we should be able to mock everything (including the sockets) with
-        closures or maps of closures, which looks simpler than using MockFor for six different objects.*/
+        def mockMinecraftServerWriter = [write: {param -> sentdata = param}] as Writer
+        def mockMinecraftServerOutputStream = mock(OutputStream.class)
+        def mockMinecraftServerSock = [getOutputStream: mockMinecraftServerOutputStream] as Socket
 
-        def mockListenSock = mock(Socket.class)
+        OutputStream.metaClass.newWriter = {
+            mockMinecraftServerWriter
+        }
 
-        PacketPasser passer = new PacketPasser(mockMinecraftServerSock)
+        def mockListenReader = [read: {chars, foo, bar ->
+            chars = data
+            return chars.length()
+        }] as Reader
+        def mockListenInputStream = mock(InputStream.class)
+        def mockListenSock = [getInputStream: {mockListenInputStream}] as Socket
+
+        InputStream.metaClass.newReader = {
+            mockListenReader
+        }
+
+        PacketPasser passer = new PacketPasser(mockListenSock)
+
+    when: "data is sent to the passer from the client"
+        passer.start(mockMinecraftServerSock)
+
+    then: "the server socket receives the data"
+        sentdata == data
+
+    cleanup:
+        GroovySystem.metaClassRegistry.removeMetaClass(OutputStream.class)
+        GroovySystem.metaClassRegistry.removeMetaClass(InputStream.class)
+
+    where: "we try a few different pieces of data"
+        data << ["Hello World!"]
     }
-
-    /* Getting ahead of myself
-    void testNewlyJoinedClientIsStored() {
-        Socket serverSock = MockFor(Socket.class);
-        PacketPasser passer = new PacketPasser(serverSock);
-
-        Socket listenSock = MockFor(Socket.class);
-        String username = "ThatOneTechPerson";
-
-        passer.
-    }
-    */
 }
 
