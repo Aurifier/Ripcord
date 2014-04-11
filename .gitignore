@@ -3,3 +3,5 @@
 /gradlew*
 /gradle
 /*.iml
+/.idea
+*.jar
