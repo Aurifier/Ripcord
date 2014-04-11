@@ -16,23 +16,24 @@ class PacketPassthroughSpec extends Specification {
     def "client packet is forwarded to server"() {
     given: "a socket to a client and a socket to a minecraft server"
         def sentdata = ""
-
         def mockMinecraftServerWriter = [write: {param -> sentdata = param}] as Writer
         def mockMinecraftServerOutputStream = mock(OutputStream.class)
         def mockMinecraftServerSock = [getOutputStream: mockMinecraftServerOutputStream] as Socket
 
-        OutputStream.metaClass.newWriter = {
+        mockMinecraftServerOutputStream.metaClass.newWriter = {
             mockMinecraftServerWriter
         }
 
         def mockListenReader = [read: {chars, foo, bar ->
-            chars = data
-            return chars.length()
+            data.eachWithIndex{ char entry, int i ->
+                chars[i] = entry
+            }
+            return chars.size()
         }] as Reader
         def mockListenInputStream = mock(InputStream.class)
         def mockListenSock = [getInputStream: {mockListenInputStream}] as Socket
 
-        InputStream.metaClass.newReader = {
+        mockListenInputStream.metaClass.newReader = {
             mockListenReader
         }
 
@@ -44,12 +45,10 @@ class PacketPassthroughSpec extends Specification {
     then: "the server socket receives the data"
         sentdata == data
 
-    cleanup:
-        GroovySystem.metaClassRegistry.removeMetaClass(OutputStream.class)
-        GroovySystem.metaClassRegistry.removeMetaClass(InputStream.class)
-
     where: "we try a few different pieces of data"
-        data << ["Hello World!"]
+        //We will always know the size of the packet from its id, so testing different length data without that
+        //information would be unfair.
+        data << ["Hello World!".toCharArray(), "Also Twelve!".toCharArray()]
     }
 }
 
