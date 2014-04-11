@@ -1,0 +1,21 @@
+apply plugin: 'groovy'
+defaultTasks 'test'
+buildDir = 'out'
+
+repositories {
+   mavenCentral()
+}
+
+dependencies {
+   compile 'org.codehaus.groovy:groovy-all:2.2.0'
+   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+   testCompile 'org.mokito:mokito-all:1.8.4'
+}
+
+test {
+   outputs.upToDateWhen { false }
+   testLogging.showStandardStreams = true
+   testLogging {
+      exceptionFormat = 'full'
+   }
+}
