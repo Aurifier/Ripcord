@@ -1,4 +1,4 @@
-package com.kmaismith.GroovyServer
+package com.thatonetechserver.ripcord
 
 class GroovyServer {
 }

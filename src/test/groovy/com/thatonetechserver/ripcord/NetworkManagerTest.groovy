@@ -1,4 +1,4 @@
-package com.kmaismith.GroovyServer.network
+package com.thatonetechserver.ripcord
 
 /**
  * Created with IntelliJ IDEA.
@@ -8,7 +8,7 @@ package com.kmaismith.GroovyServer.network
  * To change this template use File | Settings | File Templates.
  */
 class NetworkManagerTest extends GroovyTestCase {
-    def testSomething() {
+    void testSomething() {
         //NetworkManager netMgr = new NetworkManager()
 
         //netMgr.doNetworkStuff()
